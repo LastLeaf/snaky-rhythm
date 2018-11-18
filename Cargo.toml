@@ -1,0 +1,16 @@
+[package]
+name = "snaky-rhythm"
+version = "0.1.0"
+authors = ["LastLeaf <bqfu@163.com>"]
+
+[dependencies]
+lazy_static = "1.0"
+rand = "0.6"
+
+[dependencies.glayout]
+path = "glayout"
+
+[workspace]
+members = [
+    "glayout",
+]
