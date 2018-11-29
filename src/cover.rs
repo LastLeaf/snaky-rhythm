@@ -9,10 +9,10 @@ pub struct Cover {
     resource: super::resource::Resource,
 }
 
-fn start_level(context: &Rc<RefCell<canvas::CanvasContext>>, resource: &super::resource::Resource) {
+fn start_level(context: &Rc<RefCell<canvas::CanvasContext>>, resource: &super::resource::Resource, num: usize) {
     let ctx = context.clone();
     ctx.borrow_mut().root().remove(0);
-    let mut level = super::level::Level::new(context.clone(), resource.clone(), super::levels::level(0));
+    let level = super::level::Level::new(context.clone(), resource.clone(), super::levels::level(num));
     level.start();
 }
 
@@ -24,8 +24,12 @@ impl Cover {
         }
     }
     pub fn show(&mut self) {
-        let ctx_clone = self.context.clone();
-        let resource_clone = self.resource.clone();
+        let ctx_clone_1 = self.context.clone();
+        let ctx_clone_2 = self.context.clone();
+        let ctx_clone_3 = self.context.clone();
+        let resource_clone_1 = self.resource.clone();
+        let resource_clone_2 = self.resource.clone();
+        let resource_clone_3 = self.resource.clone();
 
         let mut ctx = self.context.borrow_mut();
         let cfg = ctx.canvas_config();
@@ -35,7 +39,7 @@ impl Cover {
             Image {
                 position: PositionType::Absolute;
                 left: 400.;
-                top: 300.;
+                top: 200.;
                 width: 200.;
                 height: 200.;
                 set_loader(self.resource.image("snake_normal_1"));
@@ -43,7 +47,7 @@ impl Cover {
             Empty {
                 position: PositionType::Absolute;
                 left: 400.;
-                top: 540.;
+                top: 440.;
                 color: (0.396, 0.698, 0.396, 1.);
                 Text {
                     display: DisplayType::Block;
@@ -55,8 +59,8 @@ impl Cover {
             Empty {
                 position: PositionType::Absolute;
                 left: 400.;
-                top: 600.;
-                width: 100.;
+                top: 500.;
+                width: 150.;
                 height: 36.;
                 color: (0.2, 0.2, 0.2, 1.);
                 background_color: (0.396, 0.698, 0.396, 1.);
@@ -64,9 +68,45 @@ impl Cover {
                     display: DisplayType::Block;
                     font_size: 24.;
                     line_height: 36.;
-                    set_text(" Play >");
+                    set_text(" Level 1 >");
                     @ "touchend" => move |_: &Event| {
-                        start_level(&ctx_clone, &resource_clone);
+                        start_level(&ctx_clone_1, &resource_clone_1, 0);
+                    };
+                };
+            };
+            Empty {
+                position: PositionType::Absolute;
+                left: 400.;
+                top: 550.;
+                width: 150.;
+                height: 36.;
+                color: (0.2, 0.2, 0.2, 1.);
+                background_color: (0.396, 0.698, 0.396, 1.);
+                Text {
+                    display: DisplayType::Block;
+                    font_size: 24.;
+                    line_height: 36.;
+                    set_text(" Level 2 >");
+                    @ "touchend" => move |_: &Event| {
+                        start_level(&ctx_clone_2, &resource_clone_2, 1);
+                    };
+                };
+            };
+            Empty {
+                position: PositionType::Absolute;
+                left: 400.;
+                top: 600.;
+                width: 150.;
+                height: 36.;
+                color: (0.2, 0.2, 0.2, 1.);
+                background_color: (0.396, 0.698, 0.396, 1.);
+                Text {
+                    display: DisplayType::Block;
+                    font_size: 24.;
+                    line_height: 36.;
+                    set_text(" Level 3 >");
+                    @ "touchend" => move |_: &Event| {
+                        start_level(&ctx_clone_3, &resource_clone_3, 2);
                     };
                 };
             };
