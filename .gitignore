@@ -1,4 +1,4 @@
 /node_modules
-/bin
+/bin/glayout.js*
 /target
 **/*.rs.bk
