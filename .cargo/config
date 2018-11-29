@@ -8,6 +8,8 @@ rustflags = [
   "-C", "link-arg=EXTRA_EXPORTED_RUNTIME_METHODS=['UTF8ToString','stringToUTF8']",
   "-C", "link-arg=--js-library",
   "-C", "link-arg=glayout/asmjs/bin/interfaces.js",
+  "-C", "link-arg=--js-library",
+  "-C", "link-arg=js_interfaces.js",
   "-C", "link-arg=--pre-js",
   "-C", "link-arg=glayout/asmjs/wrapper/pre.js",
   "-C", "link-arg=--post-js",

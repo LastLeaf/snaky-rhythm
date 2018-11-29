@@ -7,6 +7,11 @@ mod cover;
 mod level;
 mod levels;
 
+extern {
+    pub fn play_audio(id: i32);
+    pub fn get_audio_current_time(id: i32) -> f32;
+}
+
 fn loading() {
     let mut canvas = glayout::canvas::Canvas::new(0);
     canvas.ctx(|ctx| {

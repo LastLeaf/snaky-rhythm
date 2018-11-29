@@ -7,6 +7,7 @@ use glayout::{canvas};
 use glayout::tree::{TreeNodeRc};
 use glayout::canvas::element::{Element, Empty, Text, Image};
 use glayout::canvas::element::style::{PositionType, DisplayType};
+use super::{play_audio, get_audio_current_time};
 
 const MAP_C: i32 = 12;
 const MAP_R: i32 = 8;
@@ -16,11 +17,12 @@ const MAP_BORDER_H: i32 = 20;
 const SCREEN_W: i32 = 1280;
 const SCREEN_H: i32 = 720;
 const HINT_AREA_H: i32 = 100;
-const KEY_TIME: u32 = 300_000_000;
+const KEY_TIME: f32 = 0.3;
 
 #[derive(Clone)]
 pub struct LevelStates {
     pub position: (i32, i32),
+    pub audio_id: i32,
     pub beats_per_min: f32,
     pub patterns: Vec<&'static str>,
 }
@@ -55,6 +57,17 @@ impl Level {
         let map_y = (SCREEN_H - MAP_BORDER_H * 2 - map_h - HINT_AREA_H) / 2;
         let wrapper = element!(&cfg, Empty {
             id: "wrapper";
+            Empty {
+                id: "beats_hint";
+                position: PositionType::Absolute;
+                left: map_x;
+                top: map_y + map_h + MAP_BORDER_H * 2;
+                width: map_w;
+                height: 40.;
+                line_height: 40.;
+                font_size: 30.;
+                color: (0.5, 0.5, 0.5, 1.);
+            };
             Empty {
                 id: "map_border";
                 position: PositionType::Absolute;
@@ -129,12 +142,28 @@ impl Level {
             };
         });
         root.append(wrapper);
+        let mut beats_hint = ctx.node_by_id("beats_hint").unwrap();
         let snake_head = ctx.node_by_id("snake_head").unwrap();
         let snake_body = ctx.node_by_id("snake_body").unwrap();
         let flower = ctx.node_by_id("flower").unwrap();
         let move_node_to_pos = |node: TreeNodeRc<Element>, (c, r)| {
             node.elem().style_mut().transform_mut().reset().offset((c * MAP_CELL_SIZE) as f64, (r * MAP_CELL_SIZE) as f64);
         };
+
+        // init beats hint
+        for i in 0..16 {
+            let child = element!(&cfg, Text {
+                position: PositionType::Absolute;
+                display: DisplayType::Block;
+                left: i as f64 * 40.;
+                top: 0.;
+                width: 40.;
+                height: 40.;
+                color: if i < 8 { (0.6, 0.6, 0.6, 1.) } else { (0.3, 0.3, 0.3, 1.) };
+                set_text("x");
+            });
+            beats_hint.append(child);
+        }
 
         // init snake head and body
         let mut body_position = vec![];
@@ -198,35 +227,60 @@ impl Level {
         let context = context_clone;
         let mut current_key = ctx.fetch_last_key_code();
         let mut effective_key = None;
-        let mut effective_key_time = Instant::now();
+        let mut effective_key_time = 0.;
         let mut failed = false;
         let mut direction = (1, 0);
 
         // beats control
+        unsafe { play_audio(self.states.audio_id) };
         let step_duration = 60. / self.states.beats_per_min as f32;
-        let step_duration = Duration::new(step_duration.floor() as u64, ((step_duration - step_duration.floor()) * 1_000_000_000.) as u32);
-        let mut prev_instant = Instant::now() + Duration::new(0, KEY_TIME / 2);
-        frame!(move |t| {
+        let mut prev_instant = -step_duration;
+        let mut beats_offset: i32 = -1;
+        frame!(move |_| {
+            // get current audio time
+            let ts = unsafe { get_audio_current_time(self.states.audio_id) };
+            if ts < effective_key_time {
+                println!("{:?}, {:?}", ts, effective_key_time);
+                effective_key_time = ts;
+                effective_key = None;
+                prev_instant = -step_duration;
+                beats_offset = -1;
+            }
+
             // handling keys
             let mut ctx = context.borrow_mut();
             let prev_key = current_key.clone();
             current_key = ctx.fetch_last_key_code();
             if current_key.is_down && current_key != prev_key {
-                effective_key_time = t;
+                effective_key_time = ts;
                 effective_key = Some(current_key.clone());
-                println!("!!!");
             } else {
-                if t - effective_key_time > Duration::new(0, KEY_TIME) {
-                    effective_key_time = t;
+                if ts - effective_key_time > KEY_TIME {
+                    effective_key_time = ts;
                     effective_key = None;
-                    println!("................");
                 }
             };
 
             // skip unused frames
-            if t <= prev_instant || t - prev_instant < step_duration { return true };
-            prev_instant = t;
-            println!("DETECT");
+            if ts <= prev_instant || ts - prev_instant < step_duration { return true };
+            prev_instant = ts;
+
+            // show beats
+            beats_offset += 1;
+            let beats_segment = beats_offset / 8;
+            let next_beats_segment = if beats_segment == self.states.patterns.len() as i32 - 1 { 0 } else { beats_segment + 1 };
+            for i in 0..8 {
+                let t = self.states.patterns[beats_segment as usize].chars().nth(i).unwrap();
+                let child = beats_hint.child(i);
+                child.elem().content_mut().downcast_mut::<Text>().unwrap().set_text(t.to_string());
+                let need_highlight = beats_offset % 8 == i as i32;
+                child.elem().style_mut().color(if need_highlight { (0.4, 1.0, 0.4, 1.) } else { (0.6, 0.6, 0.6, 1.) });
+            }
+            for i in 8..16 {
+                let t = self.states.patterns[next_beats_segment as usize].chars().nth(i - 8).unwrap();
+                let child = beats_hint.child(i);
+                child.elem().content_mut().downcast_mut::<Text>().unwrap().set_text(t.to_string());
+            }
 
             if failed {
                 return true;
