@@ -10,7 +10,7 @@ Use arrow keys to control the snake.
 
 Take care of the bottom bar: **you can only control the snake when "x" is turning green**.
 
-If you have a good sense of music, this game should not be hard :)
+If you have a good sense of music, this game should not be hard :smile:
 
 [https://lastleaf.github.io/tricolors](https://lastleaf.github.io/tricolors)
 
@@ -25,7 +25,7 @@ Open the URL above in latest desktop Chrome/Firefox (or other browsers with WebG
 
 This game is made by LastLeaf (Fu, Boquan), for GitHub Game Off 2018.
 
-**NOTE** the music is extracted from my previous open source game [Leaving Room](https://github.com/LastLeaf/ludum-dare-42) . Sorry that I have no extra time for music creation :(
+**NOTE** the music is extracted from my previous open source game [Leaving Room](https://github.com/LastLeaf/ludum-dare-42) . Sorry that I have no extra time for music creation :cry:
 
 My GitHub Game Off 2015, 2016, and 2017 games (with different teammates) are also available:
 
@@ -35,7 +35,7 @@ My GitHub Game Off 2015, 2016, and 2017 games (with different teammates) are als
 
 ## Technical Details
 
-This is a game written in rust, compiling to the web with emscripten. It based on my half-done framework [glayout](https://github.com/LastLeaf/glayout) . Contact me if you are interested :)
+This is a game written in rust, compiling to the web with emscripten. It based on my half-done framework [glayout](https://github.com/LastLeaf/glayout) . Contact me if you are interested :smile:
 
 ## LISENCE
 
