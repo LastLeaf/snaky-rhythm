@@ -8,7 +8,7 @@ This is a modification of traditional _Snake_ game. The snake goes with the rhyt
 
 Use arrow keys to control the snake.
 
-Take care of the bottom bar: **you can only control the snake when "x" is green**.
+Take care of the bottom bar: you can only control the snake **right before** "x" is turning green.
 
 If you have a good sense of music, this game should not be hard :smile:
 

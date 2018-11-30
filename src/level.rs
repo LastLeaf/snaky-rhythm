@@ -250,8 +250,9 @@ impl Level {
         unsafe { play_audio(-1) };
         unsafe { play_audio(self.states.audio_id) };
         let step_duration = 60. / self.states.beats_per_min as f32;
-        let key_time_dur = Duration::new(0, ((step_duration - 0.1) * 1000_000_000.) as u32);
-        let mut prev_instant = -step_duration - (step_duration - 0.15);
+        let key_time_delay = Duration::new(0, (0.15 * 1000_000_000.) as u32);
+        let key_time_dur = Duration::new(0, (0.3 * 1000_000_000.) as u32);
+        let mut prev_instant = -step_duration - 0.05;
         let mut beats_offset: i32 = -1;
         let mut score_num: i32 = 100;
         // let key_time_dur = Duration::new(0, ((KEY_TIME_BEFORE + KEY_TIME_AFTER) * 1000_000_000.) as u32);
@@ -262,7 +263,7 @@ impl Level {
             // get current audio time
             let ts = unsafe { get_audio_current_time(self.states.audio_id) };
             if ts < prev_instant {
-                prev_instant = -step_duration - (step_duration - 0.15);
+                prev_instant = -step_duration - 0.05;
                 beats_offset = -1;
             }
 
@@ -296,7 +297,10 @@ impl Level {
 
                 // show beats
                 beats_offset += 1;
-                let beats_segment = beats_offset / 8;
+                let mut beats_segment = beats_offset / 8;
+                if beats_segment >= self.states.patterns.len() as i32 {
+                    beats_segment = 0;
+                }
                 let next_beats_segment = if beats_segment == self.states.patterns.len() as i32 - 1 { 0 } else { beats_segment + 1 };
                 for i in 0..8 {
                     let text = self.states.patterns[beats_segment as usize].chars().nth(i).unwrap();
@@ -315,7 +319,7 @@ impl Level {
                         }
                     );
                     if need_highlight && text == 'x' {
-                        can_move_time = Some(t + key_time_dur);
+                        can_move_time = Some(t + key_time_delay);
                         green_beat = i as i32;
                     }
                 }
