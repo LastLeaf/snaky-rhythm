@@ -8,11 +8,11 @@ This is a modification of traditional _Snake_ game. The snake goes with the rhyt
 
 Use arrow keys to control the snake.
 
-Take care of the bottom bar: **you can only control the snake when "x" is turning green**.
+Take care of the bottom bar: **you can only control the snake when "x" is green**.
 
 If you have a good sense of music, this game should not be hard :smile:
 
-[https://lastleaf.github.io/tricolors](https://lastleaf.github.io/tricolors)
+[https://lastleaf.github.io/snaky-rhythm](https://lastleaf.github.io/snaky-rhythm)
 
 Open the URL above in latest desktop Chrome/Firefox (or other browsers with WebGL support).
 

@@ -18,8 +18,8 @@ const MAP_BORDER_H: i32 = 20;
 const SCREEN_W: i32 = 1280;
 const SCREEN_H: i32 = 720;
 const HINT_AREA_H: i32 = 100;
-const KEY_TIME_BEFORE: f32 = 0.25;
-const KEY_TIME_AFTER: f32 = 0.05;
+const KEY_TIME_BEFORE: f32 = 0.2;
+const KEY_TIME_AFTER: f32 = 0.1;
 
 #[derive(Clone)]
 pub struct LevelStates {
@@ -250,17 +250,19 @@ impl Level {
         unsafe { play_audio(-1) };
         unsafe { play_audio(self.states.audio_id) };
         let step_duration = 60. / self.states.beats_per_min as f32;
-        let mut prev_instant = -step_duration;
+        let key_time_dur = Duration::new(0, ((step_duration - 0.1) * 1000_000_000.) as u32);
+        let mut prev_instant = -step_duration - (step_duration - 0.15);
         let mut beats_offset: i32 = -1;
         let mut score_num: i32 = 100;
-        let key_time_dur = Duration::new(0, ((KEY_TIME_BEFORE + KEY_TIME_AFTER) * 1000_000_000.) as u32);
-        let key_time_after_dur = Duration::new(0, (KEY_TIME_AFTER * 1000_000_000.) as u32);
+        // let key_time_dur = Duration::new(0, ((KEY_TIME_BEFORE + KEY_TIME_AFTER) * 1000_000_000.) as u32);
+        // let key_time_after_dur = Duration::new(0, (KEY_TIME_AFTER * 1000_000_000.) as u32);
         let mut can_move_time = None;
+        let mut green_beat = 0;
         frame!(move |t| {
             // get current audio time
             let ts = unsafe { get_audio_current_time(self.states.audio_id) };
             if ts < prev_instant {
-                prev_instant = -step_duration;
+                prev_instant = -step_duration - (step_duration - 0.15);
                 beats_offset = -1;
             }
 
@@ -301,8 +303,21 @@ impl Level {
                     let child = beats_hint.child(i);
                     child.elem().content_mut().downcast_mut::<Text>().unwrap().set_text(text.to_string());
                     let need_highlight = beats_offset % 8 == i as i32;
-                    child.elem().style_mut().color(if need_highlight { (0.4, 1.0, 0.4, 1.) } else { (0.6, 0.6, 0.6, 1.) });
-                    if need_highlight && text == 'x' { can_move_time = Some(t + key_time_after_dur) };
+                    child.elem().style_mut().color(
+                        if need_highlight {
+                            if text == 'x' {
+                                (0.4, 1.0, 0.4, 1.)
+                            } else {
+                                (0.4, 1.0, 0.4, 1.)
+                            }
+                        } else {
+                            (0.6, 0.6, 0.6, 1.)
+                        }
+                    );
+                    if need_highlight && text == 'x' {
+                        can_move_time = Some(t + key_time_dur);
+                        green_beat = i as i32;
+                    }
                 }
                 for i in 8..16 {
                     let t = self.states.patterns[next_beats_segment as usize].chars().nth(i - 8).unwrap();
